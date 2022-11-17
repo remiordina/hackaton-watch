@@ -85,10 +85,10 @@ class _MyAppState extends State<MyApp> {
         case WorkoutFeature.heartRate:
           setState(() {
             heartRate = event.value;
-            if (heartRate > 120 && _characterState != CharacterState.jumping) {
+            if (heartRate > 95 && _characterState != CharacterState.jumping) {
               _characterState = CharacterState.jumping;
               _levelInput?.value = 2;
-            } else if (heartRate <= 120 &&
+            } else if (heartRate <= 95 &&
                 _characterState == CharacterState.jumping &&
                 _characterState != CharacterState.heighfive) {
               _characterState = CharacterState.heighfive;
