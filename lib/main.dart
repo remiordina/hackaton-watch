@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:health/health.dart';
+import 'package:rive/rive.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import 'package:wear/wear.dart';
 import 'package:workout/workout.dart';
 
@@ -15,9 +16,16 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  // Controller for playback
+  late RiveAnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = SimpleAnimation('Run');
+  }
+
   final workout = Workout();
-  // create a HealthFactory for use in the app
-  HealthFactory health = HealthFactory();
 
   final exerciseType = ExerciseType.walking;
   final features = [
@@ -35,6 +43,11 @@ class _MyAppState extends State<MyApp> {
   double distance = 0;
   double speed = 0;
   bool started = false;
+
+  String accelerometer = "";
+  String userAccelerometer = "";
+  String gyroscope = "";
+  String magnetometer = "";
 
   _MyAppState() {
     workout.stream.listen((event) {
@@ -70,6 +83,53 @@ class _MyAppState extends State<MyApp> {
           break;
       }
     });
+
+    accelerometerEvents.listen((AccelerometerEvent event) {
+      print(event);
+      setState(() {
+        accelerometer = (event.x * 100).round().toString() +
+            " " +
+            (event.y * 100).round().toString() +
+            " " +
+            (event.z * 100).round().toString();
+      });
+    });
+// [AccelerometerEvent (x: 0.0, y: 9.8, z: 0.0)]
+
+    userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+      print(event);
+      setState(() {
+        userAccelerometer = (event.x * 100).round().toString() +
+            " " +
+            (event.y * 100).round().toString() +
+            " " +
+            (event.z * 100).round().toString();
+      });
+    });
+// [UserAccelerometerEvent (x: 0.0, y: 0.0, z: 0.0)]
+
+    gyroscopeEvents.listen((GyroscopeEvent event) {
+      print(event);
+      setState(() {
+        gyroscope = (event.x * 100).round().toString() +
+            " " +
+            (event.y * 100).round().toString() +
+            " " +
+            (event.z * 100).round().toString();
+      });
+    });
+// [GyroscopeEvent (x: 0.0, y: 0.0, z: 0.0)]
+
+    magnetometerEvents.listen((MagnetometerEvent event) {
+      print(event);
+      setState(() {
+        magnetometer = (event.x * 100).round().toString() +
+            " " +
+            (event.y * 100).round().toString() +
+            " " +
+            (event.z * 100).round().toString();
+      });
+    });
   }
 
   @override
@@ -82,22 +142,26 @@ class _MyAppState extends State<MyApp> {
         builder: (context, mode, child) => child!,
         child: Scaffold(
           body: Center(
-            child: Column(
-              children: [
-                Icon(Icons.access_alarm),
-                const Spacer(),
-                Text('Heart rate: $heartRate'),
-                Text('Calories: ${calories.toStringAsFixed(2)}'),
-                Text('Steps: $steps'),
-                Text('Distance: ${distance.toStringAsFixed(2)}'),
-                Text('Speed: ${speed.toStringAsFixed(2)}'),
-                const Spacer(),
-                TextButton(
-                  onPressed: toggleExerciseState,
-                  child: Text(started ? 'Stop' : 'Start'),
-                ),
-              ],
-            ),
+            child: RiveAnimation.asset(
+                      'assets/octocat.riv',
+                      animations: const ['Run', 'Walk'],
+                      controllers: [_controller],
+                      placeHolder: Icon(Icons.access_alarm),
+                    )),
+                // const Spacer(),
+                // Text('HR: $heartRate AC: $accelerometer'),
+                // Text(
+                //     'Cal: ${calories.toStringAsFixed(2)} UAC: $userAccelerometer'),
+                // Text('Step: $steps gyr: $gyroscope'),
+                // Text('Dis: ${distance.toStringAsFixed(2)} MG: $magnetometer'),
+                // Text('Speed: ${speed.toStringAsFixed(2)}'),
+                // const Spacer(),
+                // TextButton(
+                //   onPressed: toggleExerciseState,
+                //   child: Text(started ? 'Stop' : 'Start'),
+                // ),
+              // ],
+            // ),
           ),
         ),
       ),
@@ -107,6 +171,7 @@ class _MyAppState extends State<MyApp> {
   void toggleExerciseState() async {
     setState(() {
       started = !started;
+      _controller = SimpleAnimation('Walk');
     });
 
     if (started) {
