@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:rive/rive.dart';
-import 'package:watch_hackaton/state_machine.dart';
-// import 'package:sensors_plus/sensors_plus.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import 'package:wear/wear.dart';
 import 'package:workout/workout.dart';
 
@@ -19,19 +19,37 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // Controller for playback
-  late RiveAnimationController _controller;
   late CharacterState _characterState = CharacterState.idle;
+  bool get isPlaying => _controller?.isActive ?? false;
+
+  Artboard? _riveArtboard;
+  StateMachineController? _controller;
+  SMIInput<double>? _levelInput;
+  //_levelInput?.value = 0
 
   @override
   void initState() {
     super.initState();
 
-    _characterState = CharacterState.idle;
+    rootBundle.load('assets/octocat.riv').then(
+      (data) async {
+        // Load the RiveFile from the binary data.
+        final file = RiveFile.import(data);
 
-    setState(() {
-      _controller = SimpleAnimation(animation);
-    });
+        // The artboard is the root of the animation and gets drawn in the
+        // Rive widget.
+        final artboard = file.mainArtboard;
+        var controller =
+            StateMachineController.fromArtboard(artboard, 'StateMachine');
+        if (controller != null) {
+          artboard.addController(controller);
+          _levelInput = controller.findInput('State');
+        }
+        setState(() => _riveArtboard = artboard);
+      },
+    );
+
+    _characterState = CharacterState.idle;
   }
 
   final workout = Workout();
@@ -61,7 +79,6 @@ class _MyAppState extends State<MyApp> {
   _MyAppState() {
     workout.stream.listen((event) {
       // ignore: avoid_print
-      print('${event.feature}: ${event.value} (${event.timestamp})');
       switch (event.feature) {
         case WorkoutFeature.unknown:
           return;
@@ -111,58 +128,67 @@ class _MyAppState extends State<MyApp> {
       }
     });
 
-// //     accelerometerEvents.listen((AccelerometerEvent event) {
-// //       print(event);
-// //       setState(() {
-// //         accelerometer = (event.x * 100).round().toString() +
-// //             " " +
-// //             (event.y * 100).round().toString() +
-// //             " " +
-// //             (event.z * 100).round().toString();
-// //       });
-// //     });
-// // // [AccelerometerEvent (x: 0.0, y: 9.8, z: 0.0)]
+    // accelerometerEvents.listen((AccelerometerEvent event) {
+    //   setState(() {
+    //     accelerometer = (event.x * 100).round().toString() +
+    //         " " +
+    //         (event.y * 100).round().toString() +
+    //         " " +
+    //         (event.z * 100).round().toString();
+    //   });
+    // });
 
-// //     userAccelerometerEvents.listen((UserAccelerometerEvent event) {
-// //       print(event);
-// //       setState(() {
-// //         userAccelerometer = (event.x * 100).round().toString() +
-// //             " " +
-// //             (event.y * 100).round().toString() +
-// //             " " +
-// //             (event.z * 100).round().toString();
-// //       });
-// //     });
-// // // [UserAccelerometerEvent (x: 0.0, y: 0.0, z: 0.0)]
+    // userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+    //   setState(() {
+    //     userAccelerometer = (event.x * 100).round().toString() +
+    //         " " +
+    //         (event.y * 100).round().toString() +
+    //         " " +
+    //         (event.z * 100).round().toString();
+    //   });
+    // });
+// [UserAccelerometerEvent (x: 0.0, y: 0.0, z: 0.0)]
 
-// //     gyroscopeEvents.listen((GyroscopeEvent event) {
-// //       print(event);
-// //       setState(() {
-// //         gyroscope = (event.x * 100).round().toString() +
-// //             " " +
-// //             (event.y * 100).round().toString() +
-// //             " " +
-// //             (event.z * 100).round().toString();
-// //       });
-// //     });
-// // // [GyroscopeEvent (x: 0.0, y: 0.0, z: 0.0)]
+    // gyroscopeEvents.listen((GyroscopeEvent event) {
+    //   setState(() {
+    //     gyroscope = (event.x * 100).round().toString() +
+    //         " " +
+    //         (event.y * 100).round().toString() +
+    //         " " +
+    //         (event.z * 100).round().toString();
+    //   });
+    // });
+// [GyroscopeEvent (x: 0.0, y: 0.0, z: 0.0)]
 
-// //     magnetometerEvents.listen((MagnetometerEvent event) {
-// //       print(event);
-// //       setState(() {
-// //         magnetometer = (event.x * 100).round().toString() +
-// //             " " +
-// //             (event.y * 100).round().toString() +
-// //             " " +
-// //             (event.z * 100).round().toString();
-// //       });
-//     });
+    // magnetometerEvents.listen((MagnetometerEvent event) {
+    //   setState(() {
+    //     magnetometer = (event.x * 100).round().toString() +
+    //         " " +
+    //         (event.y * 100).round().toString() +
+    //         " " +
+    //         (event.z * 100).round().toString();
+    //   });
+    // });
   }
-
-  String animation = 'Walk';
 
   @override
   Widget build(BuildContext context) {
+    switch (_characterState) {
+      case CharacterState.heighfive:
+        _levelInput?.value = 3;
+        break;
+      case CharacterState.walk:
+      case CharacterState.run:
+        _levelInput?.value = 1;
+        break;
+      case CharacterState.jumping:
+        _levelInput?.value = 2;
+        break;
+      case CharacterState.idle:
+      default:
+        _levelInput?.value = 0;
+        break;
+    }
     return MaterialApp(
       theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
       // Use ambient mode to stay alive in the foreground
@@ -170,32 +196,27 @@ class _MyAppState extends State<MyApp> {
       home: AmbientMode(
         builder: (context, mode, child) => child!,
         child: Scaffold(
+          backgroundColor: Colors.grey,
           body: Center(
-            child: Column(
-              children: [
-                // body: Center(
-                //     child: RiveAnimation.asset(
-                //   'assets/octocat.riv',
-                //   animations: const ['Run', 'Walk'],
-                //   controllers: [_controller],
-                //   placeHolder: Icon(Icons.access_alarm),
-                // )),
-                // const Spacer(),
-                // Text('${_characterState.name} '),
-                // Text('HR: $heartRate AC: $accelerometer'),
-                // Text(
-                //     'Cal: ${calories.toStringAsFixed(2)} UAC: $userAccelerometer'),
-                // Text('Step: $steps gyr: $gyroscope'),
-                // Text('Dis: ${distance.toStringAsFixed(2)} MG: $magnetometer'),
-                // Text('Speed: ${speed.toStringAsFixed(2)}'),
-                StateMachineSkills(),
-                const Spacer(),
-                TextButton(
-                  onPressed: toggleExerciseState,
-                  child: Text(started ? 'Stop' : 'Start'),
-                ),
-              ],
-            ),
+            child: _riveArtboard == null
+                ? const SizedBox()
+                : Stack(
+                    children: [
+                      Positioned.fill(
+                        child: Rive(
+                          fit: BoxFit.fill,
+                          artboard: _riveArtboard!,
+                        ),
+                      ),
+                      if (!started) ...[
+                        TextButton(
+                          onPressed: toggleExerciseState,
+                          child: Text(started ? 'Stop' : 'Start'),
+                        ),
+                      ],
+                      if (started) ...[Text('$heartRate $speed')]
+                    ],
+                  ),
           ),
         ),
       ),
@@ -205,7 +226,6 @@ class _MyAppState extends State<MyApp> {
   void toggleExerciseState() async {
     setState(() {
       started = !started;
-      _controller = SimpleAnimation('Walk');
     });
 
     if (started) {

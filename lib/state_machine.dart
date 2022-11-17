@@ -17,6 +17,7 @@ class _StateMachineSkillsState extends State<StateMachineSkills> {
   Artboard? _riveArtboard;
   StateMachineController? _controller;
   SMIInput<double>? _levelInput;
+  //_levelInput?.value = 0
 
   @override
   void initState() {
@@ -54,42 +55,8 @@ class _StateMachineSkillsState extends State<StateMachineSkills> {
                 children: [
                   Positioned.fill(
                     child: Rive(
+                      fit: BoxFit.fill,
                       artboard: _riveArtboard!,
-                    ),
-                  ),
-                  Positioned.fill(
-                    bottom: 10,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 30,
-                          width: 70,
-                          child: ElevatedButton(
-                            child: const Text('Stop'),
-                            onPressed: () => _levelInput?.value = 0,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        SizedBox(
-                          height: 30,
-                          width: 70,
-                          child: ElevatedButton(
-                            child: const Text('Run'),
-                            onPressed: () => _levelInput?.value = 1,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        SizedBox(
-                          height: 30,
-                          width: 70,
-                          child: ElevatedButton(
-                            child: const Text('Jump'),
-                            onPressed: () => _levelInput?.value = 2,
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                 ],
