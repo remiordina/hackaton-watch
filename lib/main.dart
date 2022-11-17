@@ -145,7 +145,7 @@ class _MyAppState extends State<MyApp> {
       // Use a foreground service if you want to stay alive in the background
       home: AmbientMode(
         builder: (context, mode, child) => child!,
-        child: Scaffold(
+        child: const Scaffold(
           body: Center(
               child:
                   StateMachineSkills() /*RiveAnimation.asset(
