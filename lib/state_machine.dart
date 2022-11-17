@@ -32,10 +32,11 @@ class _StateMachineSkillsState extends State<StateMachineSkills> {
         // The artboard is the root of the animation and gets drawn in the
         // Rive widget.
         final artboard = file.mainArtboard;
-        var controller = StateMachineController.fromArtboard(artboard, 'Level');
+        var controller =
+            StateMachineController.fromArtboard(artboard, 'StateMachine');
         if (controller != null) {
           artboard.addController(controller);
-          _levelInput = controller.findInput('Level');
+          _levelInput = controller.findInput('State');
         }
         setState(() => _riveArtboard = artboard);
       },
@@ -57,19 +58,36 @@ class _StateMachineSkillsState extends State<StateMachineSkills> {
                     ),
                   ),
                   Positioned.fill(
-                    bottom: 100,
-                    child: Row(
+                    bottom: 10,
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ElevatedButton(
-                          child: const Text('Stop'),
-                          onPressed: () => _levelInput?.value = 0,
+                        SizedBox(
+                          height: 30,
+                          width: 70,
+                          child: ElevatedButton(
+                            child: const Text('Stop'),
+                            onPressed: () => _levelInput?.value = 0,
+                          ),
                         ),
-                        const SizedBox(width: 10),
-                        ElevatedButton(
-                          child: const Text('Run'),
-                          onPressed: () => _levelInput?.value = 1,
+                        const SizedBox(height: 5),
+                        SizedBox(
+                          height: 30,
+                          width: 70,
+                          child: ElevatedButton(
+                            child: const Text('Run'),
+                            onPressed: () => _levelInput?.value = 1,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        SizedBox(
+                          height: 30,
+                          width: 70,
+                          child: ElevatedButton(
+                            child: const Text('Jump'),
+                            onPressed: () => _levelInput?.value = 2,
+                          ),
                         ),
                       ],
                     ),
