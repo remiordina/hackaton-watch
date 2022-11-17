@@ -8,6 +8,8 @@ void main() {
   runApp(const MyApp());
 }
 
+enum CharacterState { idle, walk, run, heighfive, jumping }
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -18,11 +20,13 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   // Controller for playback
   late RiveAnimationController _controller;
+  late CharacterState _characterState = CharacterState.idle;
 
   @override
   void initState() {
     super.initState();
-    _controller = SimpleAnimation('Run');
+    _controller = SimpleAnimation('Walk');
+    _characterState = CharacterState.idle;
   }
 
   final workout = Workout();
@@ -59,6 +63,14 @@ class _MyAppState extends State<MyApp> {
         case WorkoutFeature.heartRate:
           setState(() {
             heartRate = event.value;
+            if (heartRate > 120) {
+              _characterState = CharacterState.jumping;
+            } else if (heartRate <= 120 &&
+                _characterState == CharacterState.jumping) {
+              _characterState = CharacterState.heighfive;
+
+              //todo: timeout for idle
+            }
           });
           break;
         case WorkoutFeature.calories:
@@ -79,6 +91,16 @@ class _MyAppState extends State<MyApp> {
         case WorkoutFeature.speed:
           setState(() {
             speed = event.value;
+            if (speed > 1 && speed < 2) {
+              _characterState = CharacterState.walk;
+            } else if (speed >= 2) {
+              _characterState = CharacterState.run;
+            } else if (_characterState == CharacterState.walk ||
+                _characterState == CharacterState.run) {
+              _characterState = CharacterState.heighfive;
+
+              //todo: timeout for idle
+            }
           });
           break;
       }
@@ -142,26 +164,30 @@ class _MyAppState extends State<MyApp> {
         builder: (context, mode, child) => child!,
         child: Scaffold(
           body: Center(
-            child: RiveAnimation.asset(
-                      'assets/octocat.riv',
-                      animations: const ['Run', 'Walk'],
-                      controllers: [_controller],
-                      placeHolder: Icon(Icons.access_alarm),
-                    )),
-                // const Spacer(),
-                // Text('HR: $heartRate AC: $accelerometer'),
-                // Text(
-                //     'Cal: ${calories.toStringAsFixed(2)} UAC: $userAccelerometer'),
-                // Text('Step: $steps gyr: $gyroscope'),
-                // Text('Dis: ${distance.toStringAsFixed(2)} MG: $magnetometer'),
-                // Text('Speed: ${speed.toStringAsFixed(2)}'),
-                // const Spacer(),
-                // TextButton(
-                //   onPressed: toggleExerciseState,
-                //   child: Text(started ? 'Stop' : 'Start'),
-                // ),
-              // ],
-            // ),
+            child: Column(
+              children: [
+                // body: Center(
+                //     child: RiveAnimation.asset(
+                //   'assets/octocat.riv',
+                //   animations: const ['Run', 'Walk'],
+                //   controllers: [_controller],
+                //   placeHolder: Icon(Icons.access_alarm),
+                // )),
+                const Spacer(),
+                Text('${_characterState.name} '),
+                Text('HR: $heartRate AC: $accelerometer'),
+                Text(
+                    'Cal: ${calories.toStringAsFixed(2)} UAC: $userAccelerometer'),
+                Text('Step: $steps gyr: $gyroscope'),
+                Text('Dis: ${distance.toStringAsFixed(2)} MG: $magnetometer'),
+                Text('Speed: ${speed.toStringAsFixed(2)}'),
+                const Spacer(),
+                TextButton(
+                  onPressed: toggleExerciseState,
+                  child: Text(started ? 'Stop' : 'Start'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
