@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
-import 'package:sensors_plus/sensors_plus.dart';
+import 'package:watch_hackaton/state_machine.dart';
+// import 'package:sensors_plus/sensors_plus.dart';
 import 'package:wear/wear.dart';
 import 'package:workout/workout.dart';
 
@@ -25,8 +26,12 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _controller = SimpleAnimation('Walk');
+
     _characterState = CharacterState.idle;
+
+    setState(() {
+      _controller = SimpleAnimation(animation);
+    });
   }
 
   final workout = Workout();
@@ -106,53 +111,55 @@ class _MyAppState extends State<MyApp> {
       }
     });
 
-    accelerometerEvents.listen((AccelerometerEvent event) {
-      print(event);
-      setState(() {
-        accelerometer = (event.x * 100).round().toString() +
-            " " +
-            (event.y * 100).round().toString() +
-            " " +
-            (event.z * 100).round().toString();
-      });
-    });
-// [AccelerometerEvent (x: 0.0, y: 9.8, z: 0.0)]
+// //     accelerometerEvents.listen((AccelerometerEvent event) {
+// //       print(event);
+// //       setState(() {
+// //         accelerometer = (event.x * 100).round().toString() +
+// //             " " +
+// //             (event.y * 100).round().toString() +
+// //             " " +
+// //             (event.z * 100).round().toString();
+// //       });
+// //     });
+// // // [AccelerometerEvent (x: 0.0, y: 9.8, z: 0.0)]
 
-    userAccelerometerEvents.listen((UserAccelerometerEvent event) {
-      print(event);
-      setState(() {
-        userAccelerometer = (event.x * 100).round().toString() +
-            " " +
-            (event.y * 100).round().toString() +
-            " " +
-            (event.z * 100).round().toString();
-      });
-    });
-// [UserAccelerometerEvent (x: 0.0, y: 0.0, z: 0.0)]
+// //     userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+// //       print(event);
+// //       setState(() {
+// //         userAccelerometer = (event.x * 100).round().toString() +
+// //             " " +
+// //             (event.y * 100).round().toString() +
+// //             " " +
+// //             (event.z * 100).round().toString();
+// //       });
+// //     });
+// // // [UserAccelerometerEvent (x: 0.0, y: 0.0, z: 0.0)]
 
-    gyroscopeEvents.listen((GyroscopeEvent event) {
-      print(event);
-      setState(() {
-        gyroscope = (event.x * 100).round().toString() +
-            " " +
-            (event.y * 100).round().toString() +
-            " " +
-            (event.z * 100).round().toString();
-      });
-    });
-// [GyroscopeEvent (x: 0.0, y: 0.0, z: 0.0)]
+// //     gyroscopeEvents.listen((GyroscopeEvent event) {
+// //       print(event);
+// //       setState(() {
+// //         gyroscope = (event.x * 100).round().toString() +
+// //             " " +
+// //             (event.y * 100).round().toString() +
+// //             " " +
+// //             (event.z * 100).round().toString();
+// //       });
+// //     });
+// // // [GyroscopeEvent (x: 0.0, y: 0.0, z: 0.0)]
 
-    magnetometerEvents.listen((MagnetometerEvent event) {
-      print(event);
-      setState(() {
-        magnetometer = (event.x * 100).round().toString() +
-            " " +
-            (event.y * 100).round().toString() +
-            " " +
-            (event.z * 100).round().toString();
-      });
-    });
+// //     magnetometerEvents.listen((MagnetometerEvent event) {
+// //       print(event);
+// //       setState(() {
+// //         magnetometer = (event.x * 100).round().toString() +
+// //             " " +
+// //             (event.y * 100).round().toString() +
+// //             " " +
+// //             (event.z * 100).round().toString();
+// //       });
+//     });
   }
+
+  String animation = 'Walk';
 
   @override
   Widget build(BuildContext context) {
@@ -173,14 +180,15 @@ class _MyAppState extends State<MyApp> {
                 //   controllers: [_controller],
                 //   placeHolder: Icon(Icons.access_alarm),
                 // )),
-                const Spacer(),
-                Text('${_characterState.name} '),
-                Text('HR: $heartRate AC: $accelerometer'),
-                Text(
-                    'Cal: ${calories.toStringAsFixed(2)} UAC: $userAccelerometer'),
-                Text('Step: $steps gyr: $gyroscope'),
-                Text('Dis: ${distance.toStringAsFixed(2)} MG: $magnetometer'),
-                Text('Speed: ${speed.toStringAsFixed(2)}'),
+                // const Spacer(),
+                // Text('${_characterState.name} '),
+                // Text('HR: $heartRate AC: $accelerometer'),
+                // Text(
+                //     'Cal: ${calories.toStringAsFixed(2)} UAC: $userAccelerometer'),
+                // Text('Step: $steps gyr: $gyroscope'),
+                // Text('Dis: ${distance.toStringAsFixed(2)} MG: $magnetometer'),
+                // Text('Speed: ${speed.toStringAsFixed(2)}'),
+                StateMachineSkills(),
                 const Spacer(),
                 TextButton(
                   onPressed: toggleExerciseState,
