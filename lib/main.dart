@@ -85,13 +85,19 @@ class _MyAppState extends State<MyApp> {
         case WorkoutFeature.heartRate:
           setState(() {
             heartRate = event.value;
-            if (heartRate > 120) {
+            if (heartRate > 120 && _characterState != CharacterState.jumping) {
               _characterState = CharacterState.jumping;
+              _levelInput?.value = 2;
             } else if (heartRate <= 120 &&
-                _characterState == CharacterState.jumping) {
+                _characterState == CharacterState.jumping &&
+                _characterState != CharacterState.heighfive) {
               _characterState = CharacterState.heighfive;
+              _levelInput?.value = 3;
 
               //todo: timeout for idle
+              Future.delayed(const Duration(seconds: 10), () {
+                _levelInput?.value = 1;
+              });
             }
           });
           break;
@@ -113,15 +119,23 @@ class _MyAppState extends State<MyApp> {
         case WorkoutFeature.speed:
           setState(() {
             speed = event.value;
-            if (speed > 1 && speed < 2) {
+            if (speed > 1 &&
+                speed < 2 &&
+                _characterState != CharacterState.walk) {
               _characterState = CharacterState.walk;
-            } else if (speed >= 2) {
+              _levelInput?.value = 1;
+            } else if (speed >= 2 && _characterState != CharacterState.run) {
               _characterState = CharacterState.run;
+              _levelInput?.value = 1;
             } else if (_characterState == CharacterState.walk ||
-                _characterState == CharacterState.run) {
+                _characterState == CharacterState.run &&
+                    _characterState != CharacterState.heighfive) {
               _characterState = CharacterState.heighfive;
-
+              _levelInput?.value = 3;
               //todo: timeout for idle
+              Future.delayed(const Duration(seconds: 10), () {
+                _levelInput?.value = 1;
+              });
             }
           });
           break;
@@ -173,22 +187,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    switch (_characterState) {
-      case CharacterState.heighfive:
-        _levelInput?.value = 3;
-        break;
-      case CharacterState.walk:
-      case CharacterState.run:
-        _levelInput?.value = 1;
-        break;
-      case CharacterState.jumping:
-        _levelInput?.value = 2;
-        break;
-      case CharacterState.idle:
-      default:
-        _levelInput?.value = 0;
-        break;
-    }
     return MaterialApp(
       theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Colors.black),
       // Use ambient mode to stay alive in the foreground
@@ -209,12 +207,20 @@ class _MyAppState extends State<MyApp> {
                         ),
                       ),
                       if (!started) ...[
-                        TextButton(
+                        Positioned.fill(
+                            child: TextButton(
                           onPressed: toggleExerciseState,
                           child: Text(started ? 'Stop' : 'Start'),
-                        ),
+                        )),
                       ],
-                      if (started) ...[Text('$heartRate $speed')]
+                      if (started) ...[
+                        Positioned.fill(
+                            child: Center(
+                                child: Column(children: [
+                          Text('$speed'),
+                          Text('$heartRate')
+                        ])))
+                      ],
                     ],
                   ),
           ),
