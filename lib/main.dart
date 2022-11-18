@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rive/rive.dart';
-import 'package:sensors_plus/sensors_plus.dart';
 import 'package:wear/wear.dart';
 import 'package:workout/workout.dart';
 
@@ -21,6 +20,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late CharacterState _characterState = CharacterState.idle;
   bool get isPlaying => _controller?.isActive ?? false;
+
+  final PageController pageController = PageController();
 
   Artboard? _riveArtboard;
   StateMachineController? _controller;
@@ -198,37 +199,70 @@ class _MyAppState extends State<MyApp> {
       home: AmbientMode(
         builder: (context, mode, child) => child!,
         child: Scaffold(
-          backgroundColor: Colors.grey,
-          body: Center(
-            child: _riveArtboard == null
+            backgroundColor: Colors.grey,
+            body: _riveArtboard == null
                 ? const SizedBox()
-                : Stack(
+                : PageView(
+                    scrollDirection: Axis.vertical,
+                    controller: pageController,
                     children: [
-                      Positioned.fill(
-                        child: Rive(
-                          fit: BoxFit.fill,
-                          artboard: _riveArtboard!,
-                        ),
+                      Stack(
+                        children: [
+                          Positioned.fill(
+                            child: Rive(
+                              fit: BoxFit.fill,
+                              artboard: _riveArtboard!,
+                            ),
+                          ),
+                          if (!started) ...[
+                            Positioned.fill(
+                              child: TextButton(
+                                onPressed: toggleExerciseState,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Align(
+                                    alignment: Alignment.topCenter,
+                                    child: Text(
+                                      started ? 'Stop' : 'Press to start',
+                                      style: const TextStyle(
+                                        color: Color(0xFFe00625),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (started) ...[
+                              Positioned.fill(
+                                  child: Center(
+                                      child: Column(children: [
+                                Text('${(speed * 100).round()}'),
+                                Text('$heartRate')
+                              ])))
+                            ],
+                          ],
+                        ],
                       ),
-                      if (!started) ...[
-                        Positioned.fill(
-                            child: TextButton(
-                          onPressed: toggleExerciseState,
-                          child: Text(started ? 'Stop' : 'Start'),
-                        )),
-                      ],
-                      if (started) ...[
-                        Positioned.fill(
-                            child: Center(
-                                child: Column(children: [
-                          Text('${(speed * 100).round()}'),
-                          Text('$heartRate')
-                        ])))
-                      ],
+                      Container(
+                        color: const Color.fromRGBO(194, 165, 173, 1),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Health Information:',
+                              style: TextStyle(color: Color(0xFFe00625)),
+                            ),
+                            const SizedBox(height: 5),
+                            Text('HeartRate: $heartRate'),
+                            Text('Calories: ${calories.toStringAsFixed(2)}'),
+                            Text('Steps: $steps'),
+                            Text('Distance: ${distance.toStringAsFixed(2)}'),
+                            Text('Speed: ${speed.toStringAsFixed(2)}'),
+                          ],
+                        ),
+                      )
                     ],
-                  ),
-          ),
-        ),
+                  )),
       ),
     );
   }
