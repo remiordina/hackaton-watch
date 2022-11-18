@@ -85,10 +85,10 @@ class _MyAppState extends State<MyApp> {
         case WorkoutFeature.heartRate:
           setState(() {
             heartRate = event.value;
-            if (heartRate > 95 && _characterState != CharacterState.jumping) {
+            if (heartRate > 105 && _characterState != CharacterState.jumping) {
               _characterState = CharacterState.jumping;
               _levelInput?.value = 2;
-            } else if (heartRate <= 95 &&
+            } else if (heartRate <= 105 &&
                 _characterState == CharacterState.jumping &&
                 _characterState != CharacterState.heighfive) {
               _characterState = CharacterState.heighfive;
@@ -97,7 +97,7 @@ class _MyAppState extends State<MyApp> {
               //todo: timeout for idle
               Future.delayed(const Duration(seconds: 10), () {
                 setState(() {
-                  _levelInput?.value = 1;
+                  _levelInput?.value = 0;
                 });
               });
             }
@@ -133,11 +133,11 @@ class _MyAppState extends State<MyApp> {
                 _characterState == CharacterState.run &&
                     _characterState != CharacterState.heighfive) {
               _characterState = CharacterState.heighfive;
-              //_levelInput?.value = 3;
+              // _levelInput?.value = 3;
               //todo: timeout for idle
               Future.delayed(const Duration(seconds: 10), () {
                 setState(() {
-                  _levelInput?.value = 1;
+                  _levelInput?.value = 0;
                 });
               });
             }
@@ -221,7 +221,7 @@ class _MyAppState extends State<MyApp> {
                         Positioned.fill(
                             child: Center(
                                 child: Column(children: [
-                          Text('$speed'),
+                          Text('${(speed * 100).round()}'),
                           Text('$heartRate')
                         ])))
                       ],
