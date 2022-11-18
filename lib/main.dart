@@ -25,7 +25,6 @@ class _MyAppState extends State<MyApp> {
   Artboard? _riveArtboard;
   StateMachineController? _controller;
   SMIInput<double>? _levelInput;
-  //_levelInput?.value = 0
 
   @override
   void initState() {
@@ -44,6 +43,7 @@ class _MyAppState extends State<MyApp> {
         if (controller != null) {
           artboard.addController(controller);
           _levelInput = controller.findInput('State');
+          _levelInput?.value = 0;
         }
         setState(() => _riveArtboard = artboard);
       },
@@ -92,11 +92,13 @@ class _MyAppState extends State<MyApp> {
                 _characterState == CharacterState.jumping &&
                 _characterState != CharacterState.heighfive) {
               _characterState = CharacterState.heighfive;
-              _levelInput?.value = 3;
+              //_levelInput?.value = 3;
 
               //todo: timeout for idle
               Future.delayed(const Duration(seconds: 10), () {
-                _levelInput?.value = 1;
+                setState(() {
+                  _levelInput?.value = 1;
+                });
               });
             }
           });
@@ -126,15 +128,17 @@ class _MyAppState extends State<MyApp> {
               _levelInput?.value = 1;
             } else if (speed >= 2 && _characterState != CharacterState.run) {
               _characterState = CharacterState.run;
-              _levelInput?.value = 1;
+              _levelInput?.value = 4;
             } else if (_characterState == CharacterState.walk ||
                 _characterState == CharacterState.run &&
                     _characterState != CharacterState.heighfive) {
               _characterState = CharacterState.heighfive;
-              _levelInput?.value = 3;
+              //_levelInput?.value = 3;
               //todo: timeout for idle
               Future.delayed(const Duration(seconds: 10), () {
-                _levelInput?.value = 1;
+                setState(() {
+                  _levelInput?.value = 1;
+                });
               });
             }
           });
