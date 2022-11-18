@@ -97,7 +97,7 @@ class _MyAppState extends State<MyApp> {
               //todo: timeout for idle
               Future.delayed(const Duration(seconds: 10), () {
                 setState(() {
-                  _levelInput?.value = 1;
+                  _levelInput?.value = 0;
                 });
               });
             }
@@ -134,10 +134,11 @@ class _MyAppState extends State<MyApp> {
                     _characterState != CharacterState.heighfive) {
               _characterState = CharacterState.heighfive;
               //_levelInput?.value = 3;
+
               //todo: timeout for idle
               Future.delayed(const Duration(seconds: 10), () {
                 setState(() {
-                  _levelInput?.value = 1;
+                  _levelInput?.value = 0;
                 });
               });
             }
